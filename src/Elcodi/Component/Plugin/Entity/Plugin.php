@@ -17,17 +17,16 @@
 
 namespace Elcodi\Component\Plugin\Entity;
 
+use RuntimeException;
+
+use Elcodi\Component\Core\Entity\Traits\EnabledTrait;
+
 /**
  * Class Plugin
  */
 class Plugin
 {
-    /**
-     * @var string
-     *
-     * Bundle
-     */
-    protected $bundle;
+    use EnabledTrait;
 
     /**
      * @var string
@@ -39,65 +38,16 @@ class Plugin
     /**
      * @var string
      *
-     * Name
+     * Path
      */
-    protected $name;
+    protected $hash;
 
     /**
      * @var string
      *
-     * Description
+     * Type
      */
-    protected $description;
-
-    /**
-     * @var string
-     *
-     * Version
-     */
-    protected $version;
-
-    /**
-     * @var string
-     *
-     * Author
-     */
-    protected $author;
-
-    /**
-     * @var string
-     *
-     * Year
-     */
-    protected $year;
-
-    /**
-     * @var string
-     *
-     * Url
-     */
-    protected $url;
-
-    /**
-     * @var string
-     *
-     * Fa-icon
-     */
-    protected $faIcon;
-
-    /**
-     * @var string
-     *
-     * Configuration route
-     */
-    protected $configurationRoute;
-
-    /**
-     * @var boolean
-     *
-     * Enabled
-     */
-    protected $enabled;
+    protected $type;
 
     /**
      * @var array
@@ -107,137 +57,22 @@ class Plugin
     protected $configuration;
 
     /**
-     * @var boolean
-     *
-     * Visible
-     */
-    protected $visible;
-
-    /**
      * Construct new plugin instance
      *
-     * @param string  $author
-     * @param string  $bundle
-     * @param array   $configuration
-     * @param string  $configurationRoute
-     * @param string  $description
-     * @param boolean $enabled
-     * @param string  $faIcon
-     * @param string  $name
-     * @param string  $namespace
-     * @param string  $url
-     * @param string  $version
-     * @param string  $year
-     * @param boolean $visible
+     * @param string              $namespace     Namespace
+     * @param string              $type          Type
+     * @param PluginConfiguration $configuration Configuration
      */
     public function __construct(
-        $author,
-        $bundle,
-        array $configuration,
-        $configurationRoute,
-        $description,
-        $enabled,
-        $faIcon,
-        $name,
         $namespace,
-        $url,
-        $version,
-        $year,
-        $visible
+        $type,
+        PluginConfiguration $configuration
     ) {
-        $this->author = $author;
-        $this->bundle = $bundle;
-        $this->configuration = $configuration;
-        $this->configurationRoute = $configurationRoute;
-        $this->description = $description;
-        $this->enabled = $enabled;
-        $this->faIcon = $faIcon;
-        $this->name = $name;
         $this->namespace = $namespace;
-        $this->url = $url;
-        $this->version = $version;
-        $this->year = $year;
-        $this->visible = $visible;
-    }
-
-    /**
-     * Get Author
-     *
-     * @return string Author
-     */
-    public function getAuthor()
-    {
-        return $this->author;
-    }
-
-    /**
-     * Get Bundle
-     *
-     * @return string Bundle
-     */
-    public function getBundle()
-    {
-        return $this->bundle;
-    }
-
-    /**
-     * Get Configuration
-     *
-     * @return mixed Configuration
-     */
-    public function getConfiguration()
-    {
-        return $this->configuration;
-    }
-
-    /**
-     * Get ConfigurationRoute
-     *
-     * @return string ConfigurationRoute
-     */
-    public function getConfigurationRoute()
-    {
-        return $this->configurationRoute;
-    }
-
-    /**
-     * Get Description
-     *
-     * @return string Description
-     */
-    public function getDescription()
-    {
-        return $this->description;
-    }
-
-    /**
-     * Get Enabled
-     *
-     * @return boolean Enabled
-     */
-    public function isEnabled()
-    {
-        return $this->enabled;
-    }
-
-    /**
-     * Get FaIcon
-     *
-     * @return string FaIcon
-     */
-    public function getFaIcon()
-    {
-        return $this->faIcon;
-    }
-
-    /**
-     * Get Name
-     *
-     * @return string Name
-     */
-    public function getName()
-    {
-        return $this->name;
+        $this->hash = sha1($namespace);
+        $this->type = $type;
+        $this->configuration = $configuration;
+        $this->enabled = true;
     }
 
     /**
@@ -251,42 +86,219 @@ class Plugin
     }
 
     /**
-     * Get Url
+     * Get Path
      *
-     * @return string Url
+     * @return string Path
      */
-    public function getUrl()
+    public function getHash()
     {
-        return $this->url;
+        return $this->hash;
     }
 
     /**
-     * Get Version
+     * Get Type
      *
-     * @return string Version
+     * @return string Type
      */
-    public function getVersion()
+    public function getType()
     {
-        return $this->version;
+        return $this->type;
     }
 
     /**
-     * Get Year
+     * Get configuration
      *
-     * @return string Year
+     * @return PluginConfiguration Configuration
      */
-    public function getYear()
+    public function getConfiguration()
     {
-        return $this->year;
+        return $this->configuration;
     }
 
     /**
-     * Is visible
+     * Get configuration value
      *
-     * @return boolean Visible
+     * @param string $configurationName Configuration element name
+     *
+     * @return mixed|null Configuration element value
      */
-    public function isVisible()
+    public function getConfigurationValue($configurationName)
     {
-        return $this->visible;
+        return $this
+            ->getConfiguration()
+            ->get($configurationName);
+    }
+
+    /**
+     * Get fields
+     *
+     * @return array Fields
+     */
+    public function getFields()
+    {
+        return $this
+            ->getConfiguration()
+            ->getFields();
+    }
+
+    /**
+     * Has fields
+     *
+     * @return boolean Has fields
+     */
+    public function hasFields()
+    {
+        $fields = $this->getFields();
+
+        return !empty($fields);
+    }
+
+    /**
+     * Get field value
+     *
+     * @param string $fieldName Field name
+     *
+     * @return array|null Field
+     */
+    public function getField($fieldName)
+    {
+        return $this
+            ->getConfiguration()
+            ->getField($fieldName);
+    }
+
+    /**
+     * Has field
+     *
+     * @param string $fieldName Field name
+     *
+     * @return boolean Has field
+     */
+    public function hasField($fieldName)
+    {
+        return $this
+            ->getConfiguration()
+            ->hasField($fieldName);
+    }
+
+    /**
+     * Get an array with all field values, indexed by the field name
+     *
+     * @return array Fields with values
+     */
+    public function getFieldValues()
+    {
+        return array_map(
+            function ($field) {
+                return isset($field['data'])
+                    ? $field['data']
+                    : null;
+            },
+            $this->getFields()
+        );
+    }
+
+    /**
+     * Get a field value
+     *
+     * @param string $fieldName Field name
+     *
+     * @return mixed Field value
+     */
+    public function getFieldValue($fieldName)
+    {
+        return $this
+            ->configuration
+            ->getField($fieldName)['data'];
+    }
+
+    /**
+     * Get an array with all field values, indexed by the field name
+     *
+     * @param array $fieldValues All field values to be set
+     *
+     * @return $this Self object
+     */
+    public function setFieldValues($fieldValues)
+    {
+        foreach ($fieldValues as $field => $fieldValue) {
+            $this
+                ->configuration
+                ->setField(
+                    $field,
+                    $fieldValue
+                );
+        }
+
+        return $this;
+    }
+
+    /**
+     * Plugin is usable
+     *
+     * @param array $requiredFields Fields to check
+     *
+     * @return boolean Plugin is usable
+     */
+    public function isUsable(array $requiredFields = [])
+    {
+        return array_reduce(
+            $requiredFields,
+            function ($canBeUsed, $checkableField) {
+
+                return
+                    $canBeUsed &&
+                    $this->hasField($checkableField) &&
+                    (
+                        false === $this->getField($checkableField)['required'] ||
+                        $this->getFieldValue($checkableField)
+                    );
+            },
+            $this->isEnabled()
+        );
+    }
+
+    /**
+     * Merge this plugin instance with a new one, and saves the result in
+     * this instance.
+     *
+     * This method will give priority to its own properties values.
+     *
+     * @param Plugin $newPlugin New plugin configuration
+     *
+     * @return $this Self object
+     */
+    public function merge(Plugin $newPlugin)
+    {
+        if ($newPlugin->getNamespace() !== $this->getNamespace()) {
+            throw new RuntimeException('Both plugins cannot be merged');
+        }
+
+        $this
+            ->configuration
+            ->merge($newPlugin->getConfiguration());
+
+        return $this;
+    }
+
+    /**
+     * Return new plugin instance
+     *
+     * @param string              $namespace     Namespace
+     * @param string              $type          Type
+     * @param PluginConfiguration $configuration Configuration
+     *
+     * @return self New instance
+     */
+    public static function create(
+        $namespace,
+        $type,
+        PluginConfiguration $configuration
+    ) {
+        return new self(
+            $namespace,
+            $type,
+            $configuration
+        );
     }
 }
