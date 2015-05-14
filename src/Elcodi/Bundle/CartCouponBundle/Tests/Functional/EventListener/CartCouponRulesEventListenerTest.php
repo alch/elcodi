@@ -18,7 +18,6 @@
 namespace Elcodi\Bundle\CartCouponBundle\Tests\Functional\EventListener;
 
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
-
 use Elcodi\Bundle\TestCommonBundle\Functional\WebTestCase;
 use Elcodi\Component\Cart\Entity\Interfaces\CartInterface;
 use Elcodi\Component\Coupon\Entity\Interfaces\CouponInterface;

@@ -21,7 +21,6 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
-
 use Elcodi\Bundle\CartCouponBundle\CompilerPass\MappingCompilerPass;
 use Elcodi\Bundle\CartCouponBundle\DependencyInjection\ElcodiCartCouponExtension;
 use Elcodi\Bundle\CoreBundle\Interfaces\DependentBundleInterface;

@@ -20,7 +20,6 @@ namespace Elcodi\Bundle\CouponBundle\DataFixtures\ORM;
 use DateTime;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
-
 use Elcodi\Bundle\CoreBundle\DataFixtures\ORM\Abstracts\AbstractFixture;
 use Elcodi\Component\Core\Services\ObjectDirector;
 use Elcodi\Component\Coupon\ElcodiCouponTypes;
@@ -92,6 +91,55 @@ class CouponData extends AbstractFixture implements DependentFixtureInterface
             ->setValidFrom(new DateTime());
         $couponDirector->save($couponAmount);
         $this->addReference('coupon-amount', $couponAmount);
+
+        /**
+         * Stackable Coupon with 10% of discount
+         *
+         * Valid from now without expire time
+         *
+         * Customer only can redeem it 5 times in all life
+         *
+         * Only 100 available
+         *
+         * @var CouponInterface $couponPercent
+         */
+        $couponPercent = $couponDirector
+            ->create()
+            ->setCode('percent')
+            ->setName('10 percent discount')
+            ->setType(ElcodiCouponTypes::TYPE_PERCENT)
+            ->setDiscount(12)
+            ->setCount(100)
+            ->setStackable(true)
+            ->setValidFrom(new DateTime())
+            ->setValidTo(new DateTime('next month'));
+        $couponDirector->save($couponPercent);
+        $this->addReference('coupon-percent', $couponPercent);
+
+        /**
+         * Stackable Coupon with 2 USD of discount.
+         *
+         * Valid from now without expire time
+         *
+         * Customer only can redeem it n times in all life
+         *
+         * Only 20 available
+         *
+         * Prices are stored in cents. @see \Elcodi\Component\Currency\Entity\Money
+         *
+         * @var CouponInterface $couponAmount
+         */
+        $stackableCoupon = $couponDirector
+            ->create()
+            ->setCode('stackable-coupon-amount')
+            ->setName('2 USD discount')
+            ->setType(ElcodiCouponTypes::TYPE_AMOUNT)
+            ->setPrice(Money::create(200, $currency))
+            ->setCount(20)
+            ->setStackable(true)
+            ->setValidFrom(new DateTime());
+        $couponDirector->save($stackableCoupon);
+        $this->addReference('stackable-coupon-amount', $couponAmount);
     }
 
     /**
